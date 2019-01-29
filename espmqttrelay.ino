@@ -1,4 +1,15 @@
+/*
+D0	Relay1   
+D1	Relay2
 
+D2	Button1	toggles Relay1
+D3	Button2 toggles Relay2
+D4	Button3 toggles Listening to mqtt
+
+D5	Led1 	Indicators(on/off)
+D6	Led2
+D7	Led3
+*/
 
 // This example toggles the debug LED (pin 13) on or off
 // when a button on pin 2 is pressed.
@@ -11,7 +22,14 @@
 #include <PubSubClient.h> 
 #include <Bounce2.h>
 
-
+#define BUTTON_PIN1 D2
+#define BUTTON_PIN2 D3
+#define BUTTON_PIN3 D4
+#define LED_PIN1 D5
+#define LED_PIN2 D6
+#define LED_PIN3 D7
+#define RELAY1 D0
+#define RELAY2 D1
 
 // WIFI parameters 
 const char* SSID = MYWIFISSID;
@@ -23,11 +41,9 @@ int BROKER_PORT = 1883;
 WiFiClient espClient;
 PubSubClient MQTT(espClient); // Instanciar Cliente MQTT
 
-
-#define BUTTON_PIN 2
-#define LED_PIN 13
-
-int ledState = LOW;
+int ledState1 = LOW;
+int ledState2 = LOW;
+int ledState3 = LOW;
 
 Bounce debouncer = Bounce(); // Instantiate a Bounce object
 
@@ -40,25 +56,13 @@ void setup() {
   pinMode(LED_PIN,OUTPUT); // Setup the LED
   digitalWrite(LED_PIN,ledState);
  
-}
-
-void loop() {
-
-   debouncer.update(); // Update the Bounce instance
-   
-   if ( debouncer.fell() ) {  // Call code if button transitions from HIGH to LOW
-     ledState = !ledState; // Toggle LED state
-     digitalWrite(LED_PIN,ledState); // Apply new LED state
-   }
-}
-// -----------------------
-
-void setup() {
   initPins();
   initSerial();
   initWiFi();
   initMQTT();
 }
+
+
 
 void initPins() {
   pinMode(2, OUTPUT);
@@ -138,7 +142,14 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
     }
   }
 
-  void loop() {
+void loop() {
+
+   debouncer.update(); // Update the Bounce instance
+   
+   if ( debouncer.fell() ) {  // Call code if button transitions from HIGH to LOW
+     ledState = !ledState; // Toggle LED state
+     digitalWrite(LED_PIN,ledState); // Apply new LED state
+   }
     if (!MQTT.connected()) {
     reconnectMQTT(); // Retry Worker MQTT Server connection
   }
