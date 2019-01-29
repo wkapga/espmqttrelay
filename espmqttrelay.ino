@@ -25,7 +25,8 @@ D7	Led3
 #define BUTTON_PIN1 D2
 #define BUTTON_PIN2 D3
 #define BUTTON_PIN3 D4
-#define LED_PIN1 D5
+//#define LED_PIN1 D5
+#define LED_PIN1 D4
 #define LED_PIN2 D6
 #define LED_PIN3 D7
 #define RELAY1 D0
@@ -33,10 +34,10 @@ D7	Led3
 
 // WIFI parameters 
 const char* SSID = MYWIFISSID;
-const char* PASSWORD = "YOUR_SSID_PASSWORD";
+const char* PASSWORD = MYWIFIPASS;
 
 // MQTT Config
-const char* BROKER_MQTT = "BROKER_IP_SERVER"; // MQTT Broker IP 
+const char* BROKER_MQTT = MYMQTTBROKER; // MQTT Broker IP 
 int BROKER_PORT = 1883;
 WiFiClient espClient;
 PubSubClient MQTT(espClient); // Instanciar Cliente MQTT
@@ -49,12 +50,12 @@ Bounce debouncer = Bounce(); // Instantiate a Bounce object
 
 void setup() {
   
-  debouncer.attach(BUTTON_PIN,INPUT_PULLUP); // Attach the debouncer to a pin with INPUT_PULLUP mode
+  debouncer.attach(BUTTON_PIN1,INPUT_PULLUP); // Attach the debouncer to a pin with INPUT_PULLUP mode
   debouncer.interval(25); // Use a debounce interval of 25 milliseconds
   
   
-  pinMode(LED_PIN,OUTPUT); // Setup the LED
-  digitalWrite(LED_PIN,ledState);
+  pinMode(LED_PIN1,OUTPUT); // Setup the LED
+  digitalWrite(LED_PIN1,ledState1);
  
   initPins();
   initSerial();
@@ -111,9 +112,9 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   Serial.println(message);
 
   if (message == "1") {
-    digitalWrite(2, 1);
+    digitalWrite(LED_PIN1, 1);
     } else {
-      digitalWrite(2, 0);
+      digitalWrite(LED_PIN1, 0);
     }
     message = "";
     Serial.println();
@@ -122,14 +123,14 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 
   void reconnectMQTT() {
     while (!MQTT.connected()) {
-      Serial.print("Intentando conectar con Broker MQTT: ");
+      Serial.print("Connection to MQTT Broker: ");
       Serial.println(BROKER_MQTT);
       if (MQTT.connect("ESP8266")) {
-        Serial.println("Conectado");
-      MQTT.subscribe("domoty/esp8266"); // Asigna el tópico domoty/esp8266, obs: este mismo será usado para la comunicación con el frontend
+        Serial.println("Connected");
+      MQTT.subscribe("haus/light/esplamp"); 
       } else {
-        Serial.println("Conexión fallida");
-        Serial.println("Intentando reconectar en 2 segundos");
+        Serial.println("Connection failed");
+        Serial.println("Retry in 2 secs");
         delay(2000);
       }
     }
@@ -147,8 +148,8 @@ void loop() {
    debouncer.update(); // Update the Bounce instance
    
    if ( debouncer.fell() ) {  // Call code if button transitions from HIGH to LOW
-     ledState = !ledState; // Toggle LED state
-     digitalWrite(LED_PIN,ledState); // Apply new LED state
+     ledState1 = !ledState1; // Toggle LED state
+     digitalWrite(LED_PIN1,ledState1); // Apply new LED state
    }
     if (!MQTT.connected()) {
     reconnectMQTT(); // Retry Worker MQTT Server connection
