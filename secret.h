@@ -8,5 +8,5 @@
 */
 #define MYWIFISSID "here are dragons"
 #define MYWIFIPASS "passwort123"
-#define MYMQTTBROKER "10.0.0.1"
+#define MYMQTTBROKER "10.0.0.27"
 
