@@ -6,8 +6,11 @@
 // Include the Bounce2 library found here :
 // https://github.com/thomasfredericks/Bounce2
 
+#include "secret.h" 
 #include <ESP8266WiFi.h>
-#include <PubSubClient.h>
+#include <PubSubClient.h> 
+
+
 
 // WIFI parameters 
 const char* SSID = "YOUR_SSID";
@@ -25,7 +28,6 @@ PubSubClient MQTT(espClient); // Instanciar Cliente MQTT
 #define LED_PIN 13
 
 int ledState = LOW;
-
 
 Bounce debouncer = Bounce(); // Instantiate a Bounce object
 
