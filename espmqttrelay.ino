@@ -11,12 +11,6 @@ D6	Led2
 D7	Led3
 */
 
-// This example toggles the debug LED (pin 13) on or off
-// when a button on pin 2 is pressed.
-
-// Include the Bounce2 library found here :
-// https://github.com/thomasfredericks/Bounce2
-
 #include "secret.h" 
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h> 
@@ -122,17 +116,22 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   Serial.print(" | ");
   Serial.println(message);
 
-  if (message == "1") {
-    digitalWrite(LED_PIN1, 1);
-    } else {
-      digitalWrite(LED_PIN1, 0);
-    }
-    message = "";
+  if (strcmp(topic,"lamp1")==0){ // 0 means there is a match
+    if ((message == "1") && (ledState1 == LOW)) {    toggle1();  }
+    if ((message == "0") && (ledState1 == HIGH)) {    toggle1();  }
+  }
+  if (strcmp(topic,"lamp2")==0){ // 0 means there is a match
+    if ((message == "1") && (ledState2 == LOW)) {    toggle2();  }
+    if ((message == "0") && (ledState2 == HIGH)) {    toggle2();  }
+  }
+  
+
+  message = "";
     Serial.println();
     Serial.flush();
-  }
+}
 
-  void reconnectMQTT() {
+void reconnectMQTT() {
     while (!MQTT.connected()) {
       Serial.print("Connection to MQTT Broker: ");
       Serial.println(BROKER_MQTT);
