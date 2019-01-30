@@ -40,22 +40,18 @@ const char* PASSWORD = MYWIFIPASS;
 const char* BROKER_MQTT = MYMQTTBROKER; // MQTT Broker IP 
 int BROKER_PORT = 1883;
 WiFiClient espClient;
-PubSubClient MQTT(espClient); // Instanciar Cliente MQTT
+PubSubClient MQTT(espClient); 
 
 int ledState1 = LOW;
 int ledState2 = LOW;
-int ledState3 = LOW;
+int ledState3 = HIGH;
 
-Bounce debouncer = Bounce(); // Instantiate a Bounce object
+Bounce debouncer1 = Bounce(); // Instantiate a Bounce object
+Bounce debouncer2 = Bounce(); // Instantiate a Bounce object
+Bounce debouncer3 = Bounce(); // Instantiate a Bounce object
 
 void setup() {
   
-  debouncer.attach(BUTTON_PIN1,INPUT_PULLUP); // Attach the debouncer to a pin with INPUT_PULLUP mode
-  debouncer.interval(25); // Use a debounce interval of 25 milliseconds
-  
-  
-  pinMode(LED_PIN1,OUTPUT); // Setup the LED
-  digitalWrite(LED_PIN1,ledState1);
  
   initPins();
   initSerial();
@@ -64,10 +60,25 @@ void setup() {
 }
 
 
-
 void initPins() {
-  pinMode(2, OUTPUT);
-  digitalWrite(2, 0);
+  pinMode(LED_PIN1,OUTPUT); // Setup the LED
+  digitalWrite(LED_PIN1,ledState1);
+  pinMode(LED_PIN2,OUTPUT); // Setup the LED
+  digitalWrite(LED_PIN2,ledState2);
+  pinMode(LED_PIN3,OUTPUT); // Setup the LED
+  digitalWrite(LED_PIN3,ledState3);
+  
+  pinMode(RELAY1,OUTPUT); 
+  digitalWrite(RELAY1,ledState1);
+  pinMode(RELAY2,OUTPUT);
+  digitalWrite(RELAY2,ledState2);
+
+  debouncer1.attach(BUTTON_PIN1,INPUT_PULLUP); // Attach the debouncer to a pin with INPUT_PULLUP mode
+  debounceri1.interval(25); // Use a debounce interval of 25 milliseconds
+  debouncer2.attach(BUTTON_PIN2,INPUT_PULLUP); // Attach the debouncer to a pin with INPUT_PULLUP mode
+  debounceri2.interval(25); // Use a debounce interval of 25 milliseconds
+  debouncer3.attach(BUTTON_PIN3,INPUT_PULLUP); // Attach the debouncer to a pin with INPUT_PULLUP mode
+  debounceri3.interval(25); // Use a debounce interval of 25 milliseconds
 }
 
 void initSerial() {
@@ -127,7 +138,8 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
       Serial.println(BROKER_MQTT);
       if (MQTT.connect("ESP8266")) {
         Serial.println("Connected");
-      MQTT.subscribe("haus/light/esplamp"); 
+      MQTT.subscribe("haus/light/lamp1"); 
+      MQTT.subscribe("haus/light/lamp2"); 
       } else {
         Serial.println("Connection failed");
         Serial.println("Retry in 2 secs");
@@ -143,17 +155,38 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
     }
   }
 
+void toggle1(){
+   ledState1 = !ledState1;
+   digitalWrite(LED_PIN1,ledState1); // Apply new LED state
+   digitalWrite(RELAY1,ledState1); // Apply new LED state
+} 
+
+void toggle2(){
+   ledState2 = !ledState2;
+   digitalWrite(LED_PIN2,ledState2); // Apply new LED state
+   digitalWrite(RELAY2,ledState2); // Apply new LED state
+}
+
+void toggle3(){
+   ledState3 = !ledState3;
+   digitalWrite(LED_PIN3,ledState3); // Apply new LED state
+}
+ 
 void loop() {
 
-   debouncer.update(); // Update the Bounce instance
+   debouncer1.update(); // Update the Bounce instance
+   debouncer2.update(); // Update the Bounce instance
+   debouncer3.update(); // Update the Bounce instance
    
-   if ( debouncer.fell() ) {  // Call code if button transitions from HIGH to LOW
-     ledState1 = !ledState1; // Toggle LED state
-     digitalWrite(LED_PIN1,ledState1); // Apply new LED state
+   if ( debouncer1.fell() ) { toggle1() } // Call code if button transitions from HIGH to LOW
+   if ( debouncer2.fell() ) { toggle2() } // Call code if button transitions from HIGH to LOW
+   if ( debouncer3.fell() ) { toggle3() } // Call code if button transitions from HIGH to LOW
+  
+   if (ledState3 == HIGH) {
+      if (!MQTT.connected()) {
+         reconnectMQTT(); // Retry Worker MQTT Server connection
+      }
+      recconectWiFi(); // Retry WiFi Network connection
+      MQTT.loop();
    }
-    if (!MQTT.connected()) {
-    reconnectMQTT(); // Retry Worker MQTT Server connection
-  }
-  recconectWiFi(); // Retry WiFi Network connection
-  MQTT.loop();
 }
