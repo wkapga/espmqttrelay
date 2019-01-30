@@ -115,12 +115,13 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   Serial.print(topic);
   Serial.print(" | ");
   Serial.println(message);
+ 
 
-  if (strcmp(topic,"lamp1")==0){ // 0 means there is a match
-    if ((message == "1") && (ledState1 == LOW)) {    toggle1();  }
+  if (strcmp(topic,"haus/light/lamp1")==0){ // 0 means there is a match
+    if ((message == "1")/* && (ledState1 == LOW) */ ) {    toggle1(); Serial.println("debug1"); }
     if ((message == "0") && (ledState1 == HIGH)) {    toggle1();  }
   }
-  if (strcmp(topic,"lamp2")==0){ // 0 means there is a match
+  if (strcmp(topic,"haus/light/lamp2")==0){ // 0 means there is a match
     if ((message == "1") && (ledState2 == LOW)) {    toggle2();  }
     if ((message == "0") && (ledState2 == HIGH)) {    toggle2();  }
   }
