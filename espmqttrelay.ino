@@ -19,8 +19,8 @@ D7	Led3
 #define BUTTON_PIN1 D2
 #define BUTTON_PIN2 D3
 #define BUTTON_PIN3 D4
-//#define LED_PIN1 D5
-#define LED_PIN1 D4
+#define LED_PIN1 D5
+//#define LED_PIN1 D4
 #define LED_PIN2 D6
 #define LED_PIN3 D7
 #define RELAY1 D0
@@ -68,11 +68,11 @@ void initPins() {
   digitalWrite(RELAY2,ledState2);
 
   debouncer1.attach(BUTTON_PIN1,INPUT_PULLUP); // Attach the debouncer to a pin with INPUT_PULLUP mode
-  debounceri1.interval(25); // Use a debounce interval of 25 milliseconds
+  debouncer1.interval(25); // Use a debounce interval of 25 milliseconds
   debouncer2.attach(BUTTON_PIN2,INPUT_PULLUP); // Attach the debouncer to a pin with INPUT_PULLUP mode
-  debounceri2.interval(25); // Use a debounce interval of 25 milliseconds
+  debouncer2.interval(25); // Use a debounce interval of 25 milliseconds
   debouncer3.attach(BUTTON_PIN3,INPUT_PULLUP); // Attach the debouncer to a pin with INPUT_PULLUP mode
-  debounceri3.interval(25); // Use a debounce interval of 25 milliseconds
+  debouncer3.interval(25); // Use a debounce interval of 25 milliseconds
 }
 
 void initSerial() {
@@ -158,12 +158,14 @@ void toggle1(){
    ledState1 = !ledState1;
    digitalWrite(LED_PIN1,ledState1); // Apply new LED state
    digitalWrite(RELAY1,ledState1); // Apply new LED state
+   Serial.println("toggle1");
 } 
 
 void toggle2(){
    ledState2 = !ledState2;
    digitalWrite(LED_PIN2,ledState2); // Apply new LED state
    digitalWrite(RELAY2,ledState2); // Apply new LED state
+   Serial.println("toggle2");
 }
 
 void toggle3(){
@@ -177,9 +179,9 @@ void loop() {
    debouncer2.update(); // Update the Bounce instance
    debouncer3.update(); // Update the Bounce instance
    
-   if ( debouncer1.fell() ) { toggle1() } // Call code if button transitions from HIGH to LOW
-   if ( debouncer2.fell() ) { toggle2() } // Call code if button transitions from HIGH to LOW
-   if ( debouncer3.fell() ) { toggle3() } // Call code if button transitions from HIGH to LOW
+   if ( debouncer1.fell() ) { toggle1(); } // Call code if button transitions from HIGH to LOW
+   if ( debouncer2.fell() ) { toggle2(); } // Call code if button transitions from HIGH to LOW
+   if ( debouncer3.fell() ) { toggle3(); } // Call code if button transitions from HIGH to LOW
   
    if (ledState3 == HIGH) {
       if (!MQTT.connected()) {
