@@ -2,13 +2,11 @@
 D0	Relay1   
 D1	Relay2
 
-D2	Button1	toggles Relay1
-D3	Button2 toggles Relay2
-D4	Button3 toggles Listening to mqtt
+D6	Button1	toggles Relay1
+D7	Button2 toggles Relay2
+D4	Button3   
+D8	Led1 	Indicators(on/off)
 
-D5	Led1 	Indicators(on/off)
-D6	Led2
-D7	Led3
 */
 
 #include "secret.h" 
@@ -16,13 +14,13 @@ D7	Led3
 #include <PubSubClient.h> 
 #include <Bounce2.h>
 
-#define BUTTON_PIN1 D2
-#define BUTTON_PIN2 D3
+#define BUTTON_PIN1 D6
+#define BUTTON_PIN2 D7 
 #define BUTTON_PIN3 D4
-#define LED_PIN1 D5
-//#define LED_PIN1 D4
-#define LED_PIN2 D6
-#define LED_PIN3 D7
+// #define LED_PIN1 D5
+// #define LED_PIN1 D4
+// #define LED_PIN2 D6
+ #define LED_PIN3 D8
 #define RELAY1 D0
 #define RELAY2 D1
 
@@ -55,12 +53,12 @@ void setup() {
 
 
 void initPins() {
-  pinMode(LED_PIN1,OUTPUT); // Setup the LED
+/*  pinMode(LED_PIN1,OUTPUT); // Setup the LED
   digitalWrite(LED_PIN1,ledState1);
   pinMode(LED_PIN2,OUTPUT); // Setup the LED
-  digitalWrite(LED_PIN2,ledState2);
-  pinMode(LED_PIN3,OUTPUT); // Setup the LED
-  digitalWrite(LED_PIN3,ledState3);
+  digitalWrite(LED_PIN2,ledState2); */
+  pinMode(LED_PIN3,OUTPUT); // Setup the LED 
+  digitalWrite(LED_PIN3,ledState3); 
   
   pinMode(RELAY1,OUTPUT); 
   digitalWrite(RELAY1,ledState1);
@@ -76,7 +74,7 @@ void initPins() {
 }
 
 void initSerial() {
-  Serial.begin(115200);
+  Serial.begin(9600);
 }
 
 void initWiFi() {
@@ -118,7 +116,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
  
 
   if (strcmp(topic,"haus/light/lamp1")==0){ // 0 means there is a match
-    if ((message == "1")/* && (ledState1 == LOW) */ ) {    toggle1(); Serial.println("debug1"); }
+    if ((message == "1") && (ledState1 == LOW) ) {    toggle1(); Serial.println("debug1"); }
     if ((message == "0") && (ledState1 == HIGH)) {    toggle1();  }
   }
   if (strcmp(topic,"haus/light/lamp2")==0){ // 0 means there is a match
@@ -157,14 +155,14 @@ void reconnectMQTT() {
 
 void toggle1(){
    ledState1 = !ledState1;
-   digitalWrite(LED_PIN1,ledState1); // Apply new LED state
+  // digitalWrite(LED_PIN1,ledState1); // Apply new LED state
    digitalWrite(RELAY1,ledState1); // Apply new LED state
    Serial.println("toggle1");
 } 
 
 void toggle2(){
    ledState2 = !ledState2;
-   digitalWrite(LED_PIN2,ledState2); // Apply new LED state
+   //digitalWrite(LED_PIN2,ledState2); // Apply new LED state
    digitalWrite(RELAY2,ledState2); // Apply new LED state
    Serial.println("toggle2");
 }
@@ -180,8 +178,8 @@ void loop() {
    debouncer2.update(); // Update the Bounce instance
    debouncer3.update(); // Update the Bounce instance
    
-   if ( debouncer1.fell() ) { toggle1(); } // Call code if button transitions from HIGH to LOW
-   if ( debouncer2.fell() ) { toggle2(); } // Call code if button transitions from HIGH to LOW
+   if ( debouncer1.rose() ) { toggle1(); } // button normal closed
+   if ( debouncer2.rose() ) { toggle2(); } // 
    if ( debouncer3.fell() ) { toggle3(); } // Call code if button transitions from HIGH to LOW
   
    if (ledState3 == HIGH) {
